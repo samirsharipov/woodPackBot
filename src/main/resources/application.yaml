@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/woodpack
+    username: postgres
+    password: root123
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  messages:
+          basename: messages
+          encoding: UTF-8
+          use-code-as-default-message: false
+
+
+telegram:
+  bot:
+    token: 8034491978:AAHkNubtx8K17LlPAjBn6h1XoNyoayv12k4
+    username: woodpackBot

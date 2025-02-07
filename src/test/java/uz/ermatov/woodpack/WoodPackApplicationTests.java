@@ -1,4 +1,4 @@
-package uz.ergashov.woodpack;
+package uz.ermatov.woodpack;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
