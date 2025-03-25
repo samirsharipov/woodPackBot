@@ -5,7 +5,7 @@ spring:
     password: root123
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
   data:
     redis:
@@ -15,6 +15,9 @@ spring:
           basename: messages
           encoding: UTF-8
           use-code-as-default-message: false
+  sql:
+    init:
+      mode: never
 
 
 telegram:

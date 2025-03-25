@@ -2,29 +2,34 @@ package uz.ermatov.woodpack.telegram;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import uz.ermatov.woodpack.service.UserStateService;
-import uz.ermatov.woodpack.utils.KeyboardUtils;
-import uz.ermatov.woodpack.utils.Messages;
+import uz.ermatov.woodpack.event.BotMessageEvent;
+import uz.ermatov.woodpack.service.AdminService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class WoodPackTelegramBot extends TelegramLongPollingBot {
-    private final UserStateService userStateService;
-    private final Messages messages;
-    private final KeyboardUtils keyboardUtils;
+
+    private final AdminService adminService;
+    private final UserCommandHandler userCommandHandler;
+    private final AdminCommandHandler adminCommandHandler;
 
     @Value("${telegram.bot.token}")
     private String botToken;
 
     @Value("${telegram.bot.username}")
     private String botUsername;
-
 
     @Override
     public String getBotUsername() {
@@ -38,111 +43,42 @@ public class WoodPackTelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage()) {
-            long chatId = update.getMessage().getChatId();
+        if (!update.hasMessage()) return;
 
-            // 📌 Agar foydalanuvchi contact jo‘natsa
-            if (update.getMessage().hasContact()) {
-                handleContactMessage(chatId, update.getMessage().getContact());
-                return;
-            }
+        long chatId = update.getMessage().getChatId();
 
-            // 📌 Agar foydalanuvchi oddiy matn jo‘natsa
-            if (update.getMessage().hasText()) {
-                String messageText = update.getMessage().getText();
-
-                if (messageText.equals("/start")) {
-                    sendLanguageSelection(chatId);
-                    userStateService.saveState(chatId, "CHOOSING_LANGUAGE");
-                } else {
-                    processUserInput(chatId, messageText);
-                }
-            }
-        }
-    }
-
-    private void processUserInput(long chatId, String messageText) {
-        String state = userStateService.getState(chatId);
-        String lang = userStateService.getLanguage(chatId);
-
-        if (state == null) {
-            sendLanguageSelection(chatId);
+        if (update.getMessage().hasContact()) {
+            userCommandHandler.handleContactMessage(chatId);
             return;
         }
 
-        switch (state) {
-            case "CHOOSING_LANGUAGE":
-                switch (messageText) {
-                    case "🇺🇿 O‘zbekcha" -> userStateService.saveLanguage(chatId, "uz");
-                    case "🇷🇺 Русский" -> userStateService.saveLanguage(chatId, "ru");
-                    case "🇬🇧 English" -> userStateService.saveLanguage(chatId, "en");
-                    default -> {
-                        sendMessage(chatId, messages.getMessage(chatId, "invalid_choice"));
-                        return;
-                    }
-                }
-                sendMessage(chatId, messages.getMessage(chatId, "enter_name"));
-                userStateService.saveState(chatId, "ENTER_NAME");
-                break;
-
-            case "ENTER_NAME":
-                sendContactButton(chatId);
-                userStateService.saveState(chatId, "ENTER_PHONE");
-                break;
-
-            case "CHOOSE_PRODUCT":
-                if (messageText.matches("📦 Kopli|🍾 Chupa|📦 Karobkali")) {
-                    sendMessage(chatId, messages.getMessage(chatId, "order_received"));
-                    userStateService.saveState(chatId, "FINISHED");
+        if (update.getMessage().hasText()) {
+            String messageText = update.getMessage().getText();
+            if (adminService.isAdmin(chatId) && adminCommandHandler != null) {
+                if ("/start".equals(messageText)) {
+                    adminCommandHandler.sendWelcomeMessage(chatId);
                 } else {
-                    sendMessage(chatId, messages.getMessage(chatId, "invalid_choice"));
+                    adminCommandHandler.handleAdminCommand(chatId, messageText);
                 }
-                break;
+            } else {
+                userCommandHandler.handleUserCommand(chatId);
+            }
         }
     }
 
-    private void sendLanguageSelection(long chatId) {
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        message.setText(messages.getMessage(chatId, "choose_language"));
-        message.setReplyMarkup(KeyboardUtils.getLanguageKeyboard());
+
+
+    @EventListener
+    public void onBotMessageEvent(BotMessageEvent event) {
+        SendMessage message = new SendMessage(String.valueOf(event.getChatId()), event.getText());
+        if (event.getReplyKeyboard() != null) {
+            message.setReplyMarkup(event.getReplyKeyboard());
+        }
 
         try {
             execute(message);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void sendContactButton(long chatId) {
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        message.setText(messages.getMessage(chatId, "enter_phone"));
-        message.setReplyMarkup(keyboardUtils.getPhoneNumberKeyboard(chatId));
-
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void handleContactMessage(long chatId, Contact contact) {
-        String phoneNumber = contact.getPhoneNumber();
-//        userStateService.savePhoneNumber(chatId, phoneNumber);
-
-        sendMessage(chatId, messages.getMessage(chatId, "choose_product"));
-        userStateService.saveState(chatId, "CHOOSE_PRODUCT");
-    }
-
-    private void sendMessage(long chatId, String text) {
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        message.setText(text);
-
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
+            System.err.println("❌ Xatolik: Xabar jo‘natib bo‘lmadi! " + e.getMessage());
             e.printStackTrace();
         }
     }
