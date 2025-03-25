@@ -1,4 +1,4 @@
-package uz.ermatov.woodpack.utils;
+package uz.ermatov.woodpack.telegram;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -71,4 +71,57 @@ public class KeyboardUtils {
         keyboardMarkup.setKeyboard(keyboard);
         return keyboardMarkup;
     }
+
+    public static ReplyKeyboardMarkup getAdminCrudKeyboard() {
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        keyboardMarkup.setResizeKeyboard(true);
+        keyboardMarkup.setOneTimeKeyboard(false);
+
+        List<KeyboardRow> keyboard = new ArrayList<>();
+
+        KeyboardRow row1 = new KeyboardRow();
+        row1.add(new KeyboardButton("➕ Admin qo‘shish"));
+        row1.add(new KeyboardButton("📋 Adminlar ro‘yxati"));
+
+        KeyboardRow row2 = new KeyboardRow();
+        row2.add(new KeyboardButton("🗑 Adminni o‘chirish"));
+
+        keyboard.add(row1);
+        keyboard.add(row2);
+
+        keyboardMarkup.setKeyboard(keyboard);
+        return keyboardMarkup;
+    }
+
+
+    public static ReplyKeyboardMarkup getAdminMenuKeyboard() {
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        keyboardMarkup.setResizeKeyboard(true); // Kichraytirilgan klaviatura
+        keyboardMarkup.setOneTimeKeyboard(false); // Doimiy klaviatura
+
+        List<KeyboardRow> keyboard = new ArrayList<>();
+
+        // 1-qator
+        KeyboardRow row1 = new KeyboardRow();
+        row1.add(new KeyboardButton("➕ Mahsulot qo'shish"));  // Product CRUD
+        row1.add(new KeyboardButton("📋 Mahsulotlar ro'yxati"));
+
+        // 2-qator
+        KeyboardRow row2 = new KeyboardRow();
+        row2.add(new KeyboardButton("✏ Mahsulotni tahrirlash"));
+        row2.add(new KeyboardButton("🗑 Mahsulotni o‘chirish"));
+
+        // 3-qator
+        KeyboardRow row3 = new KeyboardRow();
+        row3.add(new KeyboardButton("📊 Statistikalar"));  // Admin uchun statistika
+        row3.add(new KeyboardButton("🔑 Admin qo‘shish"));
+
+        keyboard.add(row1);
+        keyboard.add(row2);
+        keyboard.add(row3);
+
+        keyboardMarkup.setKeyboard(keyboard);
+        return keyboardMarkup;
+    }
+
 }

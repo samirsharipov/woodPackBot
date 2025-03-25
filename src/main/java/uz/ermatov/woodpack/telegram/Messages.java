@@ -1,4 +1,4 @@
-package uz.ermatov.woodpack.utils;
+package uz.ermatov.woodpack.telegram;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -18,6 +18,4 @@ public class Messages {
         Locale locale = new Locale(lang);
         return messageSource.getMessage(key, null, locale);
     }
-
-
 }
