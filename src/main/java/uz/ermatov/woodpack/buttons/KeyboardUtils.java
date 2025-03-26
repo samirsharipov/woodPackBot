@@ -3,6 +3,7 @@ package uz.ermatov.woodpack.telegram;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
@@ -31,6 +32,11 @@ public class KeyboardUtils {
         keyboardRows.add(row1);
         replyKeyboardMarkup.setKeyboard(keyboardRows);
         return replyKeyboardMarkup;
+    }
+
+
+    public static ReplyKeyboardRemove removeKeyboard() {
+        return new ReplyKeyboardRemove(true);
     }
 
     // 🔹 **Mahsulot tanlash uchun reply keyboard**
@@ -104,7 +110,7 @@ public class KeyboardUtils {
         // 1-qator
         KeyboardRow row1 = new KeyboardRow();
         row1.add(new KeyboardButton("➕ Mahsulot qo'shish"));  // Product CRUD
-        row1.add(new KeyboardButton("📋 Mahsulotlar ro'yxati"));
+        row1.add(new KeyboardButton("📋 Mahsulotlar ro‘yxati"));
 
         // 2-qator
         KeyboardRow row2 = new KeyboardRow();
