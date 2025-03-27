@@ -1,4 +1,4 @@
-package uz.ermatov.woodpack.telegram;
+package uz.ermatov.woodpack.buttons;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -6,6 +6,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import uz.ermatov.woodpack.telegram.Messages;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,27 +40,6 @@ public class KeyboardUtils {
         return new ReplyKeyboardRemove(true);
     }
 
-    // 🔹 **Mahsulot tanlash uchun reply keyboard**
-    public static ReplyKeyboardMarkup getProductKeyboard() {
-        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
-        replyKeyboardMarkup.setResizeKeyboard(true);
-        replyKeyboardMarkup.setOneTimeKeyboard(true);
-
-        List<KeyboardRow> keyboardRows = new ArrayList<>();
-
-        KeyboardRow row1 = new KeyboardRow();
-        row1.add(new KeyboardButton("📦 Kopli"));
-        row1.add(new KeyboardButton("🍾 Chupa"));
-
-        KeyboardRow row2 = new KeyboardRow();
-        row2.add(new KeyboardButton("📦 Karobkali"));
-
-        keyboardRows.add(row1);
-        keyboardRows.add(row2);
-
-        replyKeyboardMarkup.setKeyboard(keyboardRows);
-        return replyKeyboardMarkup;
-    }
 
     public ReplyKeyboardMarkup getPhoneNumberKeyboard(Long chatId) {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
