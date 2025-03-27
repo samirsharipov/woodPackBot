@@ -7,15 +7,11 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import uz.ermatov.woodpack.buttons.InlineKeyboardUtils;
 import uz.ermatov.woodpack.event.BotMessageEvent;
 import uz.ermatov.woodpack.service.AdminService;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -24,6 +20,7 @@ public class WoodPackTelegramBot extends TelegramLongPollingBot {
     private final AdminService adminService;
     private final UserCommandHandler userCommandHandler;
     private final AdminCommandHandler adminCommandHandler;
+    private final InlineKeyboardUtils inlineKeyboardUtils;
 
     @Value("${telegram.bot.token}")
     private String botToken;
@@ -63,9 +60,10 @@ public class WoodPackTelegramBot extends TelegramLongPollingBot {
             } else {
                 userCommandHandler.handleUserCommand(chatId);
             }
+        } else if (update.hasCallbackQuery()) {
+            userCommandHandler.handleCallbackQuery(update.getCallbackQuery());
         }
     }
-
 
 
     @EventListener

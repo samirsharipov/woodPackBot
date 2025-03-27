@@ -2,7 +2,7 @@ package uz.ermatov.woodpack.telegram;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import uz.ermatov.woodpack.model.Product;
+import uz.ermatov.woodpack.buttons.KeyboardUtils;
 import uz.ermatov.woodpack.service.ProductService;
 import uz.ermatov.woodpack.service.UserStateService;
 
@@ -21,16 +21,17 @@ public class AdminCommandHandler {
             }
             case "➕ Mahsulot qo'shish" -> {
                 userStateService.saveState(chatId, "ADD_PRODUCT_NAME");
-                botController.sendMessage(chatId, "Mahsulot nomini kiriting:");
+                botController.sendMessage(chatId, "Mahsulot nomini kiriting:", KeyboardUtils.removeKeyboard());
             }
-
-            case "📋 Mahsulotlar ro‘yxati" -> sendProductList(chatId);
-            default -> updateMessages(chatId, messageText);
+            case "📋 Mahsulotlar ro‘yxati" -> productService.getAllProducts(chatId);
+            default ->
+                    updateMessages(chatId, messageText);
         }
     }
 
     public void sendWelcomeMessage(long chatId) {
         String welcomeText = "Xush kelibsiz, admin! Quyidagi tugmalardan foydalaning:";
+        // Yangi inline keyboardni qo‘shish
         botController.sendMessage(chatId, welcomeText, KeyboardUtils.getAdminMenuKeyboard());
     }
 
@@ -48,10 +49,7 @@ public class AdminCommandHandler {
             }
             case "ADD_PRODUCT_PRICE" -> {
                 userStateService.saveTempData(chatId, "PRODUCT_PRICE", messageText);
-                productService.addProduct(new Product(
-                        userStateService.getTempData(chatId, "PRODUCT_NAME"),
-                        Double.valueOf(userStateService.getTempData(chatId, "PRODUCT_PRICE"))));
-                botController.sendMessage(chatId, "Mahsulot saqlandi!" + productService.getAllProducts());
+                productService.addProduct(chatId);
             }
         }
     }
