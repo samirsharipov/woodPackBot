@@ -13,7 +13,7 @@ public class AdminCommandHandler {
     private final TelegramBotController botController;
     private final ProductService productService;
 
-    public void handleAdminCommand(long chatId, String messageText) {
+    public void handleAdminCommand(long chatId, String messageText, int messageId) {
         switch (messageText) {
             case "🔑 Admin qo‘shish" -> {
                 userStateService.saveState(chatId, "ADD_ADMIN_ID");
@@ -23,9 +23,11 @@ public class AdminCommandHandler {
                 userStateService.saveState(chatId, "ADD_PRODUCT_NAME");
                 botController.sendMessage(chatId, "Mahsulot nomini kiriting:", KeyboardUtils.removeKeyboard());
             }
-            case "📋 Mahsulotlar ro‘yxati" -> productService.getAllProducts(chatId);
-            default ->
-                    updateMessages(chatId, messageText);
+            case "📋 Mahsulotlar ro‘yxati" -> {
+                int page = userStateService.getPage(chatId); // Admin uchun sahifa raqamini olish
+                productService.getAllProducts(chatId, page, messageId);
+            }
+            default -> updateMessages(chatId, messageText);
         }
     }
 
@@ -35,9 +37,6 @@ public class AdminCommandHandler {
         botController.sendMessage(chatId, welcomeText, KeyboardUtils.getAdminMenuKeyboard());
     }
 
-    private void sendProductList(long chatId) {
-        botController.sendMessage(chatId, "📦 Mahsulotlar ro‘yxati (hali implementatsiya qilinmagan).");
-    }
 
     private void updateMessages(long chatId, String messageText) {
         String state = userStateService.getState(chatId);
@@ -50,6 +49,16 @@ public class AdminCommandHandler {
             case "ADD_PRODUCT_PRICE" -> {
                 userStateService.saveTempData(chatId, "PRODUCT_PRICE", messageText);
                 productService.addProduct(chatId);
+            }
+            case "UPDATE_PRODUCT" -> {
+                userStateService.saveTempData(chatId, "PRODUCT_NAME", messageText);
+                userStateService.saveState(chatId, "UPDATE_PRODUCT_PRICE");
+                botController.sendMessage(chatId, "Mahsulot narxini kiriting:");
+            }
+            case "UPDATE_PRODUCT_PRICE" -> {
+                userStateService.saveTempData(chatId, "PRODUCT_PRICE", messageText);
+                userStateService.saveState(chatId, "START");
+                productService.updateProduct(chatId);
             }
         }
     }

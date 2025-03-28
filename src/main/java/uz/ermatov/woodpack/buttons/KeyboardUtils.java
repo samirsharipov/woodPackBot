@@ -94,17 +94,11 @@ public class KeyboardUtils {
 
         // 2-qator
         KeyboardRow row2 = new KeyboardRow();
-        row2.add(new KeyboardButton("✏ Mahsulotni tahrirlash"));
-        row2.add(new KeyboardButton("🗑 Mahsulotni o‘chirish"));
-
-        // 3-qator
-        KeyboardRow row3 = new KeyboardRow();
-        row3.add(new KeyboardButton("📊 Statistikalar"));  // Admin uchun statistika
-        row3.add(new KeyboardButton("🔑 Admin qo‘shish"));
+        row2.add(new KeyboardButton("📊 Statistikalar"));  // Admin uchun statistika
+        row2.add(new KeyboardButton("🔑 Admin qo‘shish"));
 
         keyboard.add(row1);
         keyboard.add(row2);
-        keyboard.add(row3);
 
         keyboardMarkup.setKeyboard(keyboard);
         return keyboardMarkup;

@@ -8,9 +8,9 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import uz.ermatov.woodpack.buttons.InlineKeyboardUtils;
 import uz.ermatov.woodpack.event.BotMessageEvent;
 import uz.ermatov.woodpack.service.AdminService;
+import uz.ermatov.woodpack.service.HandleCallbackQueryService;
 
 
 @Component
@@ -20,7 +20,7 @@ public class WoodPackTelegramBot extends TelegramLongPollingBot {
     private final AdminService adminService;
     private final UserCommandHandler userCommandHandler;
     private final AdminCommandHandler adminCommandHandler;
-    private final InlineKeyboardUtils inlineKeyboardUtils;
+    private final HandleCallbackQueryService handleCallbackQueryService;
 
     @Value("${telegram.bot.token}")
     private String botToken;
@@ -40,28 +40,29 @@ public class WoodPackTelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (!update.hasMessage()) return;
+        if (update.hasCallbackQuery()) {
+            handleCallbackQueryService.handleCallbackQuery(update.getCallbackQuery());
+        } else {
 
-        long chatId = update.getMessage().getChatId();
-
-        if (update.getMessage().hasContact()) {
-            userCommandHandler.handleContactMessage(chatId);
-            return;
-        }
-
-        if (update.getMessage().hasText()) {
-            String messageText = update.getMessage().getText();
-            if (adminService.isAdmin(chatId) && adminCommandHandler != null) {
-                if ("/start".equals(messageText)) {
-                    adminCommandHandler.sendWelcomeMessage(chatId);
-                } else {
-                    adminCommandHandler.handleAdminCommand(chatId, messageText);
-                }
-            } else {
-                userCommandHandler.handleUserCommand(chatId);
+            long chatId = update.getMessage().getChatId();
+            if (update.getMessage().hasContact()) {
+                userCommandHandler.handleContactMessage(chatId);
+                return;
             }
-        } else if (update.hasCallbackQuery()) {
-            userCommandHandler.handleCallbackQuery(update.getCallbackQuery());
+
+            if (update.getMessage().hasText()) {
+                Integer messageId = update.getMessage().getMessageId();
+                String messageText = update.getMessage().getText();
+                if (adminService.isAdmin(chatId) && adminCommandHandler != null) {
+                    if ("/start".equals(messageText)) {
+                        adminCommandHandler.sendWelcomeMessage(chatId);
+                    } else {
+                        adminCommandHandler.handleAdminCommand(chatId, messageText, messageId);
+                    }
+                } else {
+                    userCommandHandler.handleUserCommand(chatId);
+                }
+            }
         }
     }
 

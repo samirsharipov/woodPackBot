@@ -73,4 +73,20 @@ public class UserStateService {
     public void deleteTempData(Long chatId, String key) {
         redisTemplate.delete(TEMP_DATA_PREFIX + chatId + ":" + key);
     }
+
+    // ✅ Foydalanuvchi sahifa raqamini saqlash
+    public void savePage(Long chatId, int page) {
+        redisTemplate.opsForValue().set(TEMP_DATA_PREFIX + chatId + ":page", String.valueOf(page), Duration.ofDays(EXPIRE_DAYS));
+    }
+
+    // ✅ Foydalanuvchi sahifa raqamini olish (default = 0)
+    public int getPage(Long chatId) {
+        String page = redisTemplate.opsForValue().get(TEMP_DATA_PREFIX + chatId + ":page");
+        return (page != null) ? Integer.parseInt(page) : 0;
+    }
+
+    // ✅ Foydalanuvchi sahifa raqamini o‘chirish
+    public void deletePage(Long chatId) {
+        redisTemplate.delete(TEMP_DATA_PREFIX + chatId + ":page");
+    }
 }

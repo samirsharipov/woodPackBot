@@ -1,11 +1,12 @@
 package uz.ermatov.woodpack.telegram;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import uz.ermatov.woodpack.buttons.InlineKeyboardUtils;
 import uz.ermatov.woodpack.service.ProductService;
 import uz.ermatov.woodpack.service.UserStateService;
+
 
 @Component
 @RequiredArgsConstructor
@@ -32,15 +33,5 @@ public class UserCommandHandler {
         botController.sendMessage(chatId, "📞 Kontakt qabul qilindi. Mahsulot tanlang:");
         userStateService.saveState(chatId, "CHOOSE_PRODUCT");
         productService.chooseProduct(chatId);
-    }
-
-    public void handleCallbackQuery(CallbackQuery callbackQuery) {
-        String data = callbackQuery.getData();
-        long chatId = callbackQuery.getMessage().getChatId();
-
-        if (data.startsWith("PRODUCT_")) {
-            Long productId = Long.parseLong(data.replace("PRODUCT_", ""));
-            productService.getProductById(chatId, productId);
-        }
     }
 }
