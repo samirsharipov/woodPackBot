@@ -46,7 +46,7 @@ public class WoodPackTelegramBot extends TelegramLongPollingBot {
 
             long chatId = update.getMessage().getChatId();
             if (update.getMessage().hasContact()) {
-                userCommandHandler.handleContactMessage(chatId);
+                userCommandHandler.handleContactMessage(chatId,update.getMessage().getContact());
                 return;
             }
 
@@ -60,7 +60,11 @@ public class WoodPackTelegramBot extends TelegramLongPollingBot {
                         adminCommandHandler.handleAdminCommand(chatId, messageText, messageId);
                     }
                 } else {
-                    userCommandHandler.handleUserCommand(chatId);
+                    if ("/start".equals(messageText)) {
+                        userCommandHandler.startUserCommand(chatId);
+                    } else {
+                        userCommandHandler.handleUserCommand(chatId,messageText,messageId);
+                    }
                 }
             }
         }
