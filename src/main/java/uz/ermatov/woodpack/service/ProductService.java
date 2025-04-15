@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -29,8 +30,8 @@ public class ProductService {
     private final InlineKeyboardUtils keyboardUtils;
 
 
-    public void getAllProducts(long chatId, int page, int messageId) {
-        List<Product> all = productRepository.findAll();
+    public void getAllProducts(long chatId, int page) {
+        List<Product> all = productRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
 
         if (all.isEmpty()) {
             botController.sendMessage(chatId, "Mahsulot mavjud emas!");
@@ -42,9 +43,6 @@ public class ProductService {
         userStateService.saveState(chatId, "GET_PRODUCTS");
     }
 
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
-    }
 
 
     public void getProductById(long chatId, Long productId) {

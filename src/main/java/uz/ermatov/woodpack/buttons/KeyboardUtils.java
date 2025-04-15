@@ -41,7 +41,7 @@ public class KeyboardUtils {
     }
 
 
-    public  ReplyKeyboardMarkup getPhoneNumberKeyboard(Long chatId) {
+    public ReplyKeyboardMarkup getPhoneNumberKeyboard(Long chatId) {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setResizeKeyboard(true);
         keyboardMarkup.setOneTimeKeyboard(true);
@@ -94,8 +94,8 @@ public class KeyboardUtils {
 
         // 2-qator
         KeyboardRow row2 = new KeyboardRow();
-        row2.add(new KeyboardButton("📊 Statistikalar"));  // Admin uchun statistika
         row2.add(new KeyboardButton("🔑 Admin qo‘shish"));
+        row2.add(new KeyboardButton("📋 Adminlar ro‘yxati"));  // Admin uchun statistika
 
         keyboard.add(row1);
         keyboard.add(row2);

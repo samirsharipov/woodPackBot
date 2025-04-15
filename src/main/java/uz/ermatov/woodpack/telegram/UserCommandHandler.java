@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Contact;
 import uz.ermatov.woodpack.buttons.KeyboardUtils;
 import uz.ermatov.woodpack.service.ProductService;
+import uz.ermatov.woodpack.service.UserService;
 import uz.ermatov.woodpack.service.UserStateService;
 
 
@@ -16,9 +17,11 @@ public class UserCommandHandler {
     private final TelegramBotController botController;
     private final KeyboardUtils keyboardUtils;
     private final Messages messages;
+    private final UserService userService;
 
     public void handleUserCommand(long chatId, String messageText, int messageId) {
         String state = userStateService.getState(chatId);
+        int page = userStateService.getPage(chatId);
         if (state == null) {
             botController.sendMessage(chatId, "Iltimos, oldin /start bosing.");
             return;
@@ -26,13 +29,14 @@ public class UserCommandHandler {
 
         switch (state) {
             case "CHOOSE_LANGUAGE" -> updateMessage(chatId, messageText, messageId);
-            case "CHOOSE_PRODUCT" -> productService.chooseProduct(chatId);
+            case "CHOOSE_PRODUCT" -> productService.getAllProducts(chatId,page);
             case "ENTER_NAME" -> botController.sendMessage(chatId, "Ismingizni kiriting:");
             default -> botController.sendMessage(chatId, "Noma'lum buyruq.");
         }
     }
 
     public void handleContactMessage(long chatId, Contact contact) {
+        userService.save(contact);
         botController.sendMessage(chatId, messages.getMessage(chatId,"done_contact"));
         userStateService.saveState(chatId, "CHOOSE_PRODUCT");
         productService.chooseProduct(chatId);

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import uz.ermatov.woodpack.buttons.InlineKeyboardUtils;
+import uz.ermatov.woodpack.repository.AdminRepository;
 import uz.ermatov.woodpack.telegram.TelegramBotController;
 
 @Component
@@ -13,12 +14,14 @@ public class HandleCallbackQueryService {
     private final TelegramBotController botController;
     private final UserStateService userStateService;
     private final InlineKeyboardUtils inlineKeyboardUtils;
+    private final AdminService adminService;
 
     public void handleCallbackQuery(CallbackQuery callbackQuery) {
         String data = callbackQuery.getData();
         long chatId = callbackQuery.getMessage().getChatId();
         int messageId = callbackQuery.getMessage().getMessageId();
 
+        botController.deleteMessage(chatId, messageId);
         if (data.startsWith("PRODUCT_")) {
             Long productId = Long.parseLong(data.replace("PRODUCT_", ""));
             productService.getProductById(chatId, productId);
@@ -29,14 +32,14 @@ public class HandleCallbackQueryService {
             userStateService.saveTempData(chatId, "PRODUCT_ID", Long.toString(productId));
         } else if (data.startsWith("DELETE_PRODUCT_")) {
             long productId = Long.parseLong(data.replace("DELETE_PRODUCT_", ""));
-            botController.sendMessage(chatId, "⛔Ushbu mahsulot o'chirilsinmi:", inlineKeyboardUtils.yesOrNo(productId));
+            botController.sendMessage(chatId, "⛔Ushbu mahsulot o'chirilsinmi:", inlineKeyboardUtils.yesOrNo(productId, "PRODUCT"));
             userStateService.saveState(chatId, "DELETE_PRODUCT");
-        } else if (data.startsWith("DELETE_CONFIRM_")) {
-            long productId = Long.parseLong(data.replace("DELETE_CONFIRM_", ""));
+        } else if (data.startsWith("DELETE_CONFIRM_PRODUCT")) {
+            long productId = Long.parseLong(data.replace("DELETE_CONFIRM_PRODUCT", ""));
             userStateService.saveState(chatId, "START");
             productService.delete(productId, chatId);
-        } else if (data.startsWith("DELETE_REJECT_")) {
-            long productId = Long.parseLong(data.replace("DELETE_REJECT_", ""));
+        } else if (data.startsWith("DELETE_REJECT_PRODUCT")) {
+            long productId = Long.parseLong(data.replace("DELETE_REJECT_PRODUCT", ""));
             userStateService.saveState(chatId, "START");
             productService.rejectDelete(productId, chatId);
         } else if (data.startsWith("NEXT_PAGE_")) {
@@ -51,10 +54,25 @@ public class HandleCallbackQueryService {
             sendProductsList(chatId, prevPage, messageId); // ✅ Oldingi sahifadagi mahsulotlarni yuborish
         } else if (data.startsWith("PREVIEW_PRODUCT_")) {
             sendProductsList(chatId, userStateService.getPage(chatId), messageId);
+        } else if (data.startsWith("ADMIN_")) {
+            Long adminId = Long.parseLong(data.replace("ADMIN_", ""));
+            adminService.getById(chatId, adminId);
+        } else if (data.startsWith("DELETE_ADMIN_")) {
+            long productId = Long.parseLong(data.replace("DELETE_ADMIN_", ""));
+            botController.sendMessage(chatId, "⛔Ushbu mahsulot o'chirilsinmi:", inlineKeyboardUtils.yesOrNo(productId, "ADMIN"));
+            userStateService.saveState(chatId, "DELETE_ADMIN");
+        } else if (data.startsWith("DELETE_CONFIRM_ADMIN")) {
+            long adminId = Long.parseLong(data.replace("DELETE_CONFIRM_ADMIN", ""));
+            userStateService.saveState(chatId, "START");
+            adminService.delete(chatId,adminId);
+        } else if (data.startsWith("DELETE_REJECT_ADMIN")) {
+            long adminId = Long.parseLong(data.replace("DELETE_REJECT_ADMIN", ""));
+            userStateService.saveState(chatId, "START");
+            adminService.rejectDelete(chatId,adminId);
         }
     }
 
     private void sendProductsList(long chatId, int page, int messageId) {
-        productService.getAllProducts(chatId, page, messageId);
+        productService.getAllProducts(chatId, page);
     }
 }

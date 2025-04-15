@@ -3,10 +3,8 @@ package uz.ermatov.woodpack.telegram;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
+import uz.ermatov.woodpack.event.BotDeleteEvent;
 import uz.ermatov.woodpack.event.BotMessageEvent;
 
 @Service
@@ -21,6 +19,10 @@ public class TelegramBotController {
 
     public void sendMessage(long chatId, String text, ReplyKeyboard replyMarkup) {
         eventPublisher.publishEvent(new BotMessageEvent(this, chatId, text, replyMarkup));
+    }
+
+    public void deleteMessage(long chatId, int messageId) {
+        eventPublisher.publishEvent(new BotDeleteEvent(this, chatId, messageId));
     }
 
 }
