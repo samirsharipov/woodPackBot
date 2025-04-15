@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import uz.ermatov.woodpack.model.Admin;
 import uz.ermatov.woodpack.model.Product;
 
 import java.util.ArrayList;
@@ -74,17 +76,36 @@ public class InlineKeyboardUtils {
         return inlineKeyboardMarkup;
     }
 
-    public InlineKeyboardMarkup yesOrNo(long productId) {
+    public static InlineKeyboardMarkup getAdminActionsInlineKeyboard(Long productId) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+
+        InlineKeyboardButton prevButton = new InlineKeyboardButton();
+        prevButton.setText("⬅ Orqaga");
+        prevButton.setCallbackData("PREVIEW_ADMIN_");
+
+        InlineKeyboardButton deleteButton = new InlineKeyboardButton();
+        deleteButton.setText("🗑 Delete");
+        deleteButton.setCallbackData("DELETE_ADMIN_" + productId);
+
+        rows.add(List.of(prevButton, deleteButton));
+
+        inlineKeyboardMarkup.setKeyboard(rows);
+        return inlineKeyboardMarkup;
+    }
+
+    public InlineKeyboardMarkup yesOrNo(long productId, String customName) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
         InlineKeyboardButton yesButton = new InlineKeyboardButton();
         yesButton.setText("✅ Xa");
-        yesButton.setCallbackData("DELETE_CONFIRM_" + productId);
+        yesButton.setCallbackData("DELETE_CONFIRM_" + customName + productId);
 
         InlineKeyboardButton noButton = new InlineKeyboardButton();
         noButton.setText("❌ Yo'q");
-        noButton.setCallbackData("DELETE_REJECT_" + productId);
+        noButton.setCallbackData("DELETE_REJECT_" + customName + productId);
 
         rows.add(Arrays.asList(yesButton, noButton));
         inlineKeyboardMarkup.setKeyboard(rows);
@@ -123,4 +144,18 @@ public class InlineKeyboardUtils {
         return editMarkup;
     }
 
+    public ReplyKeyboard getAdminListKeyboard(List<Admin> all) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        for (Admin admin : all) {
+            InlineKeyboardButton adminButton = new InlineKeyboardButton();
+            adminButton.setText("👤 " + admin.getName());
+            adminButton.setCallbackData("ADMIN_" + admin.getId());
+            rows.add(List.of(adminButton));
+        }
+        inlineKeyboardMarkup.setKeyboard(rows);
+
+        return inlineKeyboardMarkup;
+    }
 }

@@ -14,11 +14,16 @@ public class UserService {
     private final UserRepository userRepository;
 
     public void save(Contact contact) {
+
         String phoneNumber = contact.getPhoneNumber();
+        String firstName = contact.getFirstName();
+        String lastName = contact.getLastName();
         Optional<User> optionalUser =
                 userRepository.findByPhoneNumber(phoneNumber);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-        }
+        User user = optionalUser.orElse(new User());
+        user.setPhoneNumber(phoneNumber);
+        user.setName(firstName + " " + lastName);
+        userRepository.save(user);
+
     }
 }

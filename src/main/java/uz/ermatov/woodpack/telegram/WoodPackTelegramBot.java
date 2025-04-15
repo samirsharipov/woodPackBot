@@ -6,8 +6,10 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import uz.ermatov.woodpack.event.BotDeleteEvent;
 import uz.ermatov.woodpack.event.BotMessageEvent;
 import uz.ermatov.woodpack.service.AdminService;
 import uz.ermatov.woodpack.service.HandleCallbackQueryService;
@@ -82,6 +84,19 @@ public class WoodPackTelegramBot extends TelegramLongPollingBot {
             execute(message);
         } catch (TelegramApiException e) {
             System.err.println("❌ Xatolik: Xabar jo‘natib bo‘lmadi! " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+
+    @EventListener
+    public void handleDeleteMessage(BotDeleteEvent event) {
+        DeleteMessage deleteMessage = new DeleteMessage(String.valueOf(event.getChatId()), event.getMessageId());
+
+        try {
+            execute(deleteMessage); // Bot xabarni o'chiradi
+        } catch (Exception e) {
+            System.err.println("❌ Xatolik: Xabarni o‘chirib bo‘lmadi! " + e.getMessage());
             e.printStackTrace();
         }
     }
