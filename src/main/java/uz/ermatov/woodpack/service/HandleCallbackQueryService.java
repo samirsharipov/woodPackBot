@@ -78,6 +78,9 @@ public class HandleCallbackQueryService {
             orderService.save(productId, telegramId);
             botController.sendMessage(chatId, messages.getMessage(chatId, "added_order"));
             sendProductsList(chatId, userStateService.getPage(chatId));
+        } else if (data.startsWith("CONFIRM_ORDER_")) {
+            long productId = Long.parseLong(data.replace("CONFIRM_ORDER_", ""));
+            orderService.updateOrder(productId,chatId);
         }
     }
 
