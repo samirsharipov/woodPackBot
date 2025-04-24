@@ -104,4 +104,26 @@ public class KeyboardUtils {
         return keyboardMarkup;
     }
 
+    public ReplyKeyboardMarkup getUserMenuKeyboard(long chatId) {
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        keyboardMarkup.setResizeKeyboard(true); // Kichraytirilgan klaviatura
+        keyboardMarkup.setOneTimeKeyboard(false); // Doimiy klaviatura
+
+        List<KeyboardRow> keyboard = new ArrayList<>();
+
+        // 1-qator
+        KeyboardRow row1 = new KeyboardRow();
+        row1.add(new KeyboardButton(messages.getMessage(chatId, "menu_product")));
+
+        // 2-qator
+        KeyboardRow row2 = new KeyboardRow();
+        row2.add(new KeyboardButton(messages.getMessage(chatId, "order")));  // Admin uchun statistika
+
+        keyboard.add(row1);
+        keyboard.add(row2);
+
+        keyboardMarkup.setKeyboard(keyboard);
+        return keyboardMarkup;
+    }
+
 }

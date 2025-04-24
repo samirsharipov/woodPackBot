@@ -13,7 +13,7 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
 
-    public void save(Contact contact) {
+    public void save(Contact contact,long telegramId) {
 
         String phoneNumber = contact.getPhoneNumber();
         String firstName = contact.getFirstName();
@@ -23,6 +23,7 @@ public class UserService {
         User user = optionalUser.orElse(new User());
         user.setPhoneNumber(phoneNumber);
         user.setName(firstName + " " + lastName);
+        user.setTelegramId(telegramId);
         userRepository.save(user);
 
     }

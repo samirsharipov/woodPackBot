@@ -31,7 +31,7 @@ public class AdminCommandHandler {
             }
             case "📋 Mahsulotlar ro‘yxati" -> {
                 int page = userStateService.getPage(chatId); // Admin uchun sahifa raqamini olish
-                productService.getAllProducts(chatId, page);
+                productService.getAllProducts(chatId, page,false);
             }
             default -> updateMessages(chatId, messageText);
         }

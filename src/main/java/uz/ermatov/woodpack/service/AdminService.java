@@ -4,20 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import uz.ermatov.woodpack.buttons.InlineKeyboardUtils;
 import uz.ermatov.woodpack.model.Admin;
-import uz.ermatov.woodpack.model.Product;
 import uz.ermatov.woodpack.repository.AdminRepository;
-import uz.ermatov.woodpack.repository.ProductRepository;
 import uz.ermatov.woodpack.telegram.TelegramBotController;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class AdminService {
     private final AdminRepository adminRepository;
-    private final ProductRepository productRepository;
     private final TelegramBotController botController;
     private final InlineKeyboardUtils keyboardUtils;
     private final UserStateService userStateService;

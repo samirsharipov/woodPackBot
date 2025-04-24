@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import uz.ermatov.woodpack.model.Admin;
 import uz.ermatov.woodpack.model.Product;
+import uz.ermatov.woodpack.telegram.Messages;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,7 +18,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InlineKeyboardUtils {
 
-    public InlineKeyboardMarkup getProductListInlineKeyboard(List<Product> products, int page, boolean hasNext, boolean hasPrevious) {
+    private final Messages messages;
+
+    public InlineKeyboardMarkup getProductListInlineKeyboard(List<Product> products, int page, boolean hasNext, boolean hasPrevious, boolean isForUser, long chatId) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
@@ -54,23 +57,39 @@ public class InlineKeyboardUtils {
         return inlineKeyboardMarkup;
     }
 
-    public static InlineKeyboardMarkup getProductActionsInlineKeyboard(Long productId) {
+    public  InlineKeyboardMarkup getProductActionsInlineKeyboard(Long productId, long chatId, boolean isForUser) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
-        InlineKeyboardButton editButton = new InlineKeyboardButton();
-        editButton.setText("✏ Edit");
-        editButton.setCallbackData("EDIT_PRODUCT_" + productId);
 
-        InlineKeyboardButton prevButton = new InlineKeyboardButton();
-        prevButton.setText("⬅ Orqaga");
-        prevButton.setCallbackData("PREVIEW_PRODUCT_");
+        if (isForUser) {
 
-        InlineKeyboardButton deleteButton = new InlineKeyboardButton();
-        deleteButton.setText("🗑 Delete");
-        deleteButton.setCallbackData("DELETE_PRODUCT_" + productId);
+            InlineKeyboardButton ordersButton = new InlineKeyboardButton();
+            ordersButton.setText(messages.getMessage(chatId, "order"));
+            ordersButton.setCallbackData("ORDER_" + productId);
 
-        rows.add(List.of(editButton, prevButton, deleteButton));
+
+            InlineKeyboardButton prevButton = new InlineKeyboardButton();
+            prevButton.setText("⬅ Orqaga");
+            prevButton.setCallbackData("PREVIEW_PRODUCT_");
+
+            rows.add(List.of(ordersButton, prevButton));
+        } else {
+
+            InlineKeyboardButton editButton = new InlineKeyboardButton();
+            editButton.setText("✏ Edit");
+            editButton.setCallbackData("EDIT_PRODUCT_" + productId);
+
+            InlineKeyboardButton prevButton = new InlineKeyboardButton();
+            prevButton.setText("⬅ Orqaga");
+            prevButton.setCallbackData("PREVIEW_PRODUCT_");
+
+            InlineKeyboardButton deleteButton = new InlineKeyboardButton();
+            deleteButton.setText("🗑 Delete");
+            deleteButton.setCallbackData("DELETE_PRODUCT_" + productId);
+            rows.add(List.of(editButton, prevButton, deleteButton));
+        }
+
 
         inlineKeyboardMarkup.setKeyboard(rows);
         return inlineKeyboardMarkup;
@@ -114,35 +133,23 @@ public class InlineKeyboardUtils {
     }
 
 
-    public InlineKeyboardMarkup getProductListKeyboard(int page, List<Product> allProducts) {
+    public InlineKeyboardMarkup getProductListKeyboard(int page, List<Product> allProducts, boolean isForUser, long chatId) {
         int pageSize = 5; // Har bir sahifada nechta mahsulot bo‘lishini belgilash
         int startIndex = page * pageSize;
         int endIndex = Math.min(startIndex + pageSize, allProducts.size());
+
+        if (startIndex >= allProducts.size()) {
+            startIndex = Math.max(0, allProducts.size() - pageSize);
+            endIndex = allProducts.size();
+        }
 
         List<Product> productsOnPage = allProducts.subList(startIndex, endIndex);
         boolean hasNext = endIndex < allProducts.size();
         boolean hasPrevious = startIndex > 0;
 
-        return getProductListInlineKeyboard(productsOnPage, page, hasNext, hasPrevious);
+        return getProductListInlineKeyboard(productsOnPage, page, hasNext, hasPrevious, isForUser, chatId);
     }
 
-    public EditMessageReplyMarkup updateInlineKeyboard(long chatId, int messageId, int page, List<Product> allProducts) {
-        System.out.println("updateInlineKeyboard chaqirildi: chatId=" + chatId + ", messageId=" + messageId + ", page=" + page);
-
-        InlineKeyboardMarkup newKeyboard = getProductListKeyboard(page, allProducts);
-
-        if (newKeyboard == null || newKeyboard.getKeyboard().isEmpty()) {
-            System.out.println("⚠ Yangi inline keyboard topilmadi yoki bo‘sh!");
-        }
-
-        // Eski xabarning inline tugmalarini yangilash
-        EditMessageReplyMarkup editMarkup = new EditMessageReplyMarkup();
-        editMarkup.setChatId(chatId);
-        editMarkup.setMessageId(messageId);
-        editMarkup.setReplyMarkup(newKeyboard);
-
-        return editMarkup;
-    }
 
     public ReplyKeyboard getAdminListKeyboard(List<Admin> all) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
