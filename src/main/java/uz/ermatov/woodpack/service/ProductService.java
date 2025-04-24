@@ -13,6 +13,7 @@ import uz.ermatov.woodpack.buttons.InlineKeyboardUtils;
 import uz.ermatov.woodpack.buttons.KeyboardUtils;
 import uz.ermatov.woodpack.model.Product;
 import uz.ermatov.woodpack.repository.ProductRepository;
+import uz.ermatov.woodpack.telegram.Messages;
 import uz.ermatov.woodpack.telegram.TelegramBotController;
 
 import java.util.ArrayList;
@@ -28,9 +29,10 @@ public class ProductService {
     private final UserStateService userStateService;
     private final TelegramBotController botController;
     private final InlineKeyboardUtils keyboardUtils;
+    private final Messages messages;
 
 
-    public void getAllProducts(long chatId, int page) {
+    public void getAllProducts(long chatId, int page, boolean isForUser) {
         List<Product> all = productRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
 
         if (all.isEmpty()) {
@@ -38,14 +40,13 @@ public class ProductService {
             userStateService.saveState(chatId, "START");
             return;
         }
-        botController.sendMessage(chatId, "📦 Kerakli mahsulotni tanlang:", keyboardUtils.getProductListKeyboard(page, all));
+        botController.sendMessage(chatId, messages.getMessage(chatId, "choose_product"), keyboardUtils.getProductListKeyboard(page, all, isForUser, chatId));
 
         userStateService.saveState(chatId, "GET_PRODUCTS");
     }
 
 
-
-    public void getProductById(long chatId, Long productId) {
+    public void getProductById(long chatId, Long productId, boolean isForUser) {
         Optional<Product> productOptional = productRepository.findById(productId);
         if (productOptional.isPresent()) {
             Product product = productOptional.get();
@@ -53,7 +54,7 @@ public class ProductService {
                     "🔹 Nomi: " + product.getName() + "\n" +
                     "💰 Narxi: " + product.getPrice() + " so‘m";
 
-            botController.sendMessage(chatId, productInfo, InlineKeyboardUtils.getProductActionsInlineKeyboard(productId));
+            botController.sendMessage(chatId, productInfo, keyboardUtils.getProductActionsInlineKeyboard(productId, chatId, isForUser));
         } else {
             botController.sendMessage(chatId, "❌ Mahsulot topilmadi!");
         }
@@ -96,9 +97,6 @@ public class ProductService {
         userStateService.saveState(chatId, "START");
     }
 
-    public void chooseProduct(long chatId) {
-
-    }
 
     public void delete(long productId, long chatId) {
         Optional<Product> optionalProduct = productRepository.findById(productId);
