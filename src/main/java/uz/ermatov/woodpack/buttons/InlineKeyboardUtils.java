@@ -57,7 +57,7 @@ public class InlineKeyboardUtils {
         return inlineKeyboardMarkup;
     }
 
-    public  InlineKeyboardMarkup getProductActionsInlineKeyboard(Long productId, long chatId, boolean isForUser) {
+    public InlineKeyboardMarkup getProductActionsInlineKeyboard(Long productId, long chatId, boolean isForUser) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
@@ -164,5 +164,14 @@ public class InlineKeyboardUtils {
         inlineKeyboardMarkup.setKeyboard(rows);
 
         return inlineKeyboardMarkup;
+    }
+
+    public InlineKeyboardMarkup orderConfirm(long chatId, long orderId) {
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        InlineKeyboardButton confirmButton = new InlineKeyboardButton();
+        confirmButton.setText(messages.getMessage(chatId, "button_confirm"));
+        confirmButton.setCallbackData("CONFIRM_ORDER_" + orderId);
+        markup.setKeyboard(List.of(List.of(confirmButton)));
+        return markup;
     }
 }
