@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import uz.ermatov.woodpack.buttons.KeyboardUtils;
 import uz.ermatov.woodpack.service.AdminService;
+import uz.ermatov.woodpack.service.OrderService;
 import uz.ermatov.woodpack.service.ProductService;
 import uz.ermatov.woodpack.service.UserStateService;
 
@@ -14,6 +15,7 @@ public class AdminCommandHandler {
     private final TelegramBotController botController;
     private final ProductService productService;
     private final AdminService adminService;
+    private final OrderService orderService;
 
     public void handleAdminCommand(long chatId, String messageText, int messageId) {
         switch (messageText) {
@@ -32,6 +34,9 @@ public class AdminCommandHandler {
             case "📋 Mahsulotlar ro‘yxati" -> {
                 int page = userStateService.getPage(chatId); // Admin uchun sahifa raqamini olish
                 productService.getAllProducts(chatId, page,false);
+            }case "\uD83D\uDCE5 Buyurtmalar" ->{
+                int page = userStateService.getPage(chatId);
+                orderService.getAllOrderForAdmin(chatId);
             }
             default -> updateMessages(chatId, messageText);
         }

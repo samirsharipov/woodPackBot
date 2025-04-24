@@ -58,28 +58,6 @@ public class KeyboardUtils {
         return keyboardMarkup;
     }
 
-    public static ReplyKeyboardMarkup getAdminCrudKeyboard() {
-        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-        keyboardMarkup.setResizeKeyboard(true);
-        keyboardMarkup.setOneTimeKeyboard(false);
-
-        List<KeyboardRow> keyboard = new ArrayList<>();
-
-        KeyboardRow row1 = new KeyboardRow();
-        row1.add(new KeyboardButton("➕ Admin qo‘shish"));
-        row1.add(new KeyboardButton("📋 Adminlar ro‘yxati"));
-
-        KeyboardRow row2 = new KeyboardRow();
-        row2.add(new KeyboardButton("🗑 Adminni o‘chirish"));
-
-        keyboard.add(row1);
-        keyboard.add(row2);
-
-        keyboardMarkup.setKeyboard(keyboard);
-        return keyboardMarkup;
-    }
-
-
     public static ReplyKeyboardMarkup getAdminMenuKeyboard() {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setResizeKeyboard(true); // Kichraytirilgan klaviatura
@@ -97,8 +75,13 @@ public class KeyboardUtils {
         row2.add(new KeyboardButton("🔑 Admin qo‘shish"));
         row2.add(new KeyboardButton("📋 Adminlar ro‘yxati"));  // Admin uchun statistika
 
+
+        KeyboardRow row3 = new KeyboardRow();
+        row3.add(new KeyboardButton("\uD83D\uDCE5 Buyurtmalar"));
+
         keyboard.add(row1);
         keyboard.add(row2);
+        keyboard.add(row3);
 
         keyboardMarkup.setKeyboard(keyboard);
         return keyboardMarkup;
