@@ -14,6 +14,7 @@ import uz.ermatov.woodpack.telegram.TelegramBotController;
 
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -81,5 +82,42 @@ public class OrderService {
             orderRepository.save(order);
         });
         botController.sendMessage(chatId, messages.getMessage(chatId, "order_updated"));
+    }
+
+    public void getAllOrderForAdmin(long chatId) {
+        List<Order> orders = orderRepository.findAllByConfirmTrueAndAcceptanceFalse();
+
+        if (orders.isEmpty()) {
+            botController.sendMessage(chatId, "Hech qanday tasdiqlangan buyurtma topilmadi.");
+        } else {
+            for (Order order : orders) {
+                Optional<User> userOpt = userRepository.findById(order.getUserId());
+                String userInfo = userOpt.map(user ->
+                        "👤 Ism: " + user.getName() + "\n📞 Tel: " + user.getPhoneNumber()
+                ).orElse("👤 Foydalanuvchi topilmadi");
+
+                StringBuilder message = new StringBuilder();
+                message.append("📦 Order ID: ").append(order.getId()).append("\n")
+                        .append(userInfo).append("\n")
+                        .append("🛒 Mahsulotlar:\n");
+
+                for (Long productId : order.getProductIdList()) {
+                    productRepository.findById(productId).ifPresent(product ->
+                            message.append("• ").append(product.getName()).append("\n")
+                    );
+                }
+
+                botController.sendMessage(chatId, message.toString(), inlineKeyboardUtils.orderAccept(chatId, order.getId()));
+            }
+        }
+    }
+
+    public void accept(long orderId) {
+        orderRepository.findById(orderId).ifPresent(order -> {
+            order.setConfirm(true);
+            order.setAcceptance(true);
+            orderRepository.save(order);
+        });
+        botController.sendMessage(orderId, "Qabul qilindi!");
     }
 }

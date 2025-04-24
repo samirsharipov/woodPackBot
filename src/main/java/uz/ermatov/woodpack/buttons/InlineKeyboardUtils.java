@@ -174,4 +174,13 @@ public class InlineKeyboardUtils {
         markup.setKeyboard(List.of(List.of(confirmButton)));
         return markup;
     }
+
+    public InlineKeyboardMarkup orderAccept(long chatId, Long id) {
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        InlineKeyboardButton acceptButton = new InlineKeyboardButton();
+        acceptButton.setText("✅ Qabul qilish");
+        acceptButton.setCallbackData("ACCEPT_ORDER_" + id);
+        markup.setKeyboard(List.of(List.of(acceptButton)));
+        return markup;
+    }
 }
